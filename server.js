@@ -32,7 +32,8 @@ app.prepare().then(() => {
     const params = new URLSearchParams(queryString);
     const key = params.get("key");
 
-    const rtmpUrl = `rtmps://global-live.mux.com/app/${key}`;
+    // const rtmpUrl = `rtmps://global-live.mux.com/app/${key}`;
+    const rtmpUrl = `rtmp://live-sao.twitch.tv/app/${key}`;
     const ffmpeg = child_process.spawn("ffmpeg", [
       "-i",
       "-",

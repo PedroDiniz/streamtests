@@ -11,7 +11,8 @@ export default () => {
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [streamKey, setStreamKey] = useState(null);
-  const [shoutOut, setShoutOut] = useState("you");
+  const [shoutOut, setShoutOut] = useState("");
+  const [selectedLayout, setSelectedLayout] = useState("none");
 
   const inputStreamRef = useRef();
   const videoRef = useRef();
@@ -20,6 +21,7 @@ export default () => {
   const mediaRecorderRef = useRef();
   const requestAnimationRef = useRef();
   const nameRef = useRef();
+  const selectedLayoutRef = useRef();
 
   const enableCamera = async () => {
     inputStreamRef.current = await navigator.mediaDevices.getUserMedia(
@@ -53,9 +55,49 @@ export default () => {
 
     ctx.fillStyle = "#ff0000";
     ctx.font = "50px monospace";
-    ctx.fillText(`Oh hi, ${nameRef.current}`, 5, 50);
+    ctx.fillText(nameRef.current, 5, 50);
+
+    addSelectedLayout(ctx);
 
     requestAnimationRef.current = requestAnimationFrame(updateCanvas);
+  };
+
+  const addSelectedLayout = (ctx) => {
+    const layouts = {
+      none: () => {},
+      topLeft: () => {
+        ctx.drawImage(videoRef.current, 10, 10, 100, 100);
+      },
+      topRight: () => {
+        ctx.drawImage(
+          videoRef.current,
+          videoRef.current.clientWidth - 100 - 10,
+          10,
+          100,
+          100
+        );
+      },
+      bottomLeft: () => {
+        ctx.drawImage(
+          videoRef.current,
+          10,
+          videoRef.current.clientHeight - 100 - 10,
+          100,
+          100
+        );
+      },
+      bottomRight: () => {
+        ctx.drawImage(
+          videoRef.current,
+          videoRef.current.clientWidth - 100 - 10,
+          videoRef.current.clientHeight - 100 - 10,
+          100,
+          100
+        );
+      },
+    };
+
+    layouts[selectedLayoutRef.current]();
   };
 
   const stopStreaming = () => {
@@ -116,11 +158,19 @@ export default () => {
   }, [shoutOut]);
 
   useEffect(() => {
+    selectedLayoutRef.current = selectedLayout;
+  }, [selectedLayout]);
+
+  useEffect(() => {
+    enableCamera();
+  }, []);
+
+  useEffect(() => {
     return () => {
       cancelAnimationFrame(requestAnimationRef.current);
     };
   }, []);
-  console.log(videoRef);
+
   return (
     <div style={{ maxWidth: "980px", margin: "0 auto" }}>
       <Head>
@@ -177,6 +227,38 @@ export default () => {
             type="text"
             onChange={(e) => setShoutOut(e.target.value)}
           />
+          <div>
+            <button
+              className="button button-outline"
+              onClick={() => setSelectedLayout("none")}
+            >
+              None
+            </button>
+            <button
+              className="button button-outline"
+              onClick={() => setSelectedLayout("topLeft")}
+            >
+              Top Left
+            </button>
+            <button
+              className="button button-outline"
+              onClick={() => setSelectedLayout("topRight")}
+            >
+              Top Right
+            </button>
+            <button
+              className="button button-outline"
+              onClick={() => setSelectedLayout("bottomLeft")}
+            >
+              Bottom Left
+            </button>
+            <button
+              className="button button-outline"
+              onClick={() => setSelectedLayout("bottomRight")}
+            >
+              Bottom Right
+            </button>
+          </div>
         </div>
       </div>
     </div>
